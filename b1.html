@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turn-Based Game with Phaser</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<script>
+    const config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        backgroundColor: '#1d212d',
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    const game = new Phaser.Game(config);
+
+    let turn = 1; // 1: Phe 1, 2: Phe 2
+    let turnTime = 5; // Thời gian còn lại trong lượt
+    let turnCount = { 1: 1, 2: 1 }; // Số lượt của mỗi phe
+    let timerText, turnText, turnCountText;
+    let timerEvent;
+    let canContinue = true; // Chỉ cho phép chơi nếu true
+
+    function preload() {
+        // Load các tài nguyên nếu cần
+    }
+
+    function create() {
+        // Hiển thị phe hiện tại
+        turnText = this.add.text(400, 100, `Turn: Phe ${turn}`, {
+            font: '32px Arial',
+            fill: '#ffffff'
+        }).setOrigin(0.5);
+
+        // Hiển thị thời gian còn lại
+        timerText = this.add.text(400, 150, `Time: ${turnTime}`, {
+            font: '32px Arial',
+            fill: '#ff0000'
+        }).setOrigin(0.5);
+
+        // Hiển thị lượt còn lại của phe
+        turnCountText = this.add.text(400, 200, `Phe ${turn} lượt: ${turnCount[turn]}`, {
+            font: '24px Arial',
+            fill: '#00ff00'
+        }).setOrigin(0.5);
+
+        // Tạo bộ đếm thời gian
+        timerEvent = this.time.addEvent({
+            delay: 1000, // Mỗi giây giảm 1
+            callback: onSecondElapsed,
+            callbackScope: this,
+            loop: true
+        });
+
+        // Thêm sự kiện nhấp chuột để chơi
+        this.input.on('pointerdown', () => {
+          // if (canContinue) {
+                console.log(`Phe ${turn} chơi!`);
+                turnCount[turn]++; // Tăng lượt cho phe hiện tại
+                updateTurnUI(); // Cập nhật giao diện
+                canContinue = false; // Ngăn chơi liên tục
+           // }
+        });
+    }
+
+    function update() {
+        // Cập nhật logic nếu cần
+    }
+
+    function onSecondElapsed() {
+        if (turnTime > 0) {
+            turnTime--; // Giảm thời gian
+            timerText.setText(`Time: ${turnTime}`);
+        } else {
+            if (turnCount[turn] > 1) {
+                turnCount[turn]--; // Giảm lượt nếu phe có hơn 1 lượt
+            } else {
+                turn = turn === 1 ? 2 : 1; // Chuyển sang phe khác
+                turnCount[turn] = 1; // Đặt lại lượt của phe mới
+            }
+
+            turnTime = 5; // Đặt lại thời gian
+            canContinue = true; // Cho phép phe tiếp theo chơi
+            updateTurnUI(); // Cập nhật giao diện
+        }
+    }
+
+    function updateTurnUI() {
+        turnText.setText(`Turn: Phe ${turn}`);
+        timerText.setText(`Time: ${turnTime}`);
+        turnCountText.setText(`Phe ${turn} lượt: ${turnCount[turn]}`);
+    }
+</script>
+</body>
+</html>

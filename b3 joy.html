@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phaser Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Tạo một game Phaser với 10 cảnh
+        var config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            scene: [],
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: false
+                }
+            }
+        };
+
+        // Hàm tạo cảnh
+        function createScene(sceneNumber, color, nextSceneNumber) {
+            return {
+                key: 'scene' + sceneNumber,
+                preload: function () {
+                    this.load.image('player', 'https://cdn.pixabay.com/photo/2017/08/30/05/03/character-2693957_960_720.png');
+                    this.load.image('portal', 'https://cdn.pixabay.com/photo/2017/08/30/05/03/character-2693957_960_720.png');
+                },
+                create: function () {
+                    this.cameras.main.setBackgroundColor(color);  // Đặt màu nền cho cảnh
+                    this.player = this.physics.add.sprite(100, 100, 'player').setOrigin(0.5, 0.5);
+                    this.player.setCollideWorldBounds(true);
+
+                    this.cursors = this.input.keyboard.createCursorKeys();
+
+                    // Tạo ô vàng chuyển cảnh
+                    this.portal = this.physics.add.sprite(700, 500, 'portal').setOrigin(0.5, 0.5);
+                    this.portal.setScale(0.5);
+                    this.portal.setTint(0xFFFF00); // Màu vàng
+
+                    this.physics.add.overlap(this.player, this.portal, () => {
+                        // Hủy nhân vật cũ trước khi chuyển cảnh
+                        this.player.destroy();
+                        // Chuyển sang cảnh tiếp theo
+                        this.scene.start('scene' + nextSceneNumber);
+                    });
+                },
+                update: function () {
+                    if (this.cursors.left.isDown) {
+                        this.player.x -= 5;
+                    } else if (this.cursors.right.isDown) {
+                        this.player.x += 5;
+                    }
+
+                    if (this.cursors.up.isDown) {
+                        this.player.y -= 5;
+                    } else if (this.cursors.down.isDown) {
+                        this.player.y += 5;
+                    }
+                }
+            };
+        }
+
+        // Tạo 10 cảnh
+        for (let i = 1; i <= 10; i++) {
+            let nextScene = (i === 10) ? 1 : i + 1; // Quay lại cảnh đầu tiên nếu đã ở cảnh cuối
+            let color = Phaser.Display.Color.GetColor(50 * i, 50 * i, 255 - (50 * i));  // Màu sắc thay đổi theo cảnh
+            config.scene.push(createScene(i, color, nextScene));
+        }
+
+        // Khởi động game
+        var game = new Phaser.Game(config);
+    </script>
+</body>
+</html>

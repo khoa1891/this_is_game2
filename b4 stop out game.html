@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turn-Based Game with Restart</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+</head>
+<body>
+<script>
+    const config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    const game = new Phaser.Game(config);
+
+    let t_urn = 1;
+    let tur_nTime = 5;
+    let tu_rnCount = { 1: 1, 2: 1 };
+    let isPaused = false;
+    let timerEvent;
+    let stopButton, outButton, restartButton;
+
+    function preload() {}
+
+    function create() {
+        // Text elements
+        const turnText = this.add.text(50, 100, `Turn: Phe ${t_urn}`, { fontSize: '20px', fill: '#fff' });
+        const timerText = this.add.text(50, 130, `Time: ${tur_nTime}`, { fontSize: '20px', fill: '#fff' });
+        const tu_rnCountText = this.add.text(50, 160, `Phe ${t_urn} Lượt: ${tu_rnCount[t_urn]}`, { fontSize: '20px', fill: '#fff' });
+
+        // Buttons
+        stopButton = this.add.text(100, 50, "Stop", { fontSize: '20px', fill: '#fff' })
+            .setInteractive()
+            .on('pointerdown', () => {
+                isPaused = !isPaused;
+                timerEvent.paused = isPaused; // Pause or resume timer
+                stopButton.setText(isPaused ? "Resume" : "Stop");
+            });
+
+        outButton = this.add.text(200, 50, "Out", { fontSize: '20px', fill: '#fff' })
+            .setInteractive()
+            .on('pointerdown', () => {
+                isPaused = true;
+                timerEvent.paused = true;
+                this.add.text(200, 300, "Game Over", { fontSize: '32px', fill: '#fff' });
+                stopButton.setVisible(false);
+                outButton.setVisible(false);
+                restartButton.setVisible(true); // Show Restart Button
+            });
+
+        restartButton = this.add.text(350, 300, "Restart", { fontSize: '20px', fill: '#fff' })
+            .setInteractive()
+            .setVisible(false) // Hidden initially
+            .on('pointerdown', () => {
+                restartGame.call(this, turnText, timerText, tu_rnCountText);
+            });
+
+        // Timer Event
+        timerEvent = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                if (!isPaused) {
+                    if (tur_nTime > 0) {
+                        tur_nTime--;
+                        timerText.setText(`Time: ${tur_nTime}`);
+                    } else {
+                        endTurn(turnText, timerText, tu_rnCountText);
+                    }
+                }
+            },
+            loop: true
+        });
+    }
+
+    function endTurn(turnText, timerText, tu_rnCountText) {
+        if (tu_rnCount[t_urn] <= 0) {
+            t_urn = t_urn === 1 ? 2 : 1; // Switch t_urn
+            tu_rnCount[t_urn] = 1; // Reset turn count for new turn
+        }
+        tur_nTime = 5; // Reset timer
+        turnText.setText(`Turn: Phe ${t_urn}`);
+        timerText.setText(`Time: ${tur_nTime}`);
+        tu_rnCountText.setText(`Phe ${t_urn} Lượt: ${tu_rnCount[t_urn]}`);
+    }
+
+    function restartGame(turnText, timerText, tu_rnCountText) {
+        // Reset trạng thái trò chơi
+        t_urn = 1;
+        tur_nTime = 5;
+        tu_rnCount = { 1: 1, 2: 1 };
+        isPaused = false;
+
+        // Cập nhật giao diện
+        turnText.setText(`Turn: Phe ${t_urn}`);
+        timerText.setText(`Time: ${tur_nTime}`);
+        tu_rnCountText.setText(`Phe ${t_urn} Lượt: ${tu_rnCount[t_urn]}`);
+
+        // Hiển thị lại các nút
+        stopButton.setVisible(true);
+        stopButton.setText("Stop"); // Reset Stop button
+        outButton.setVisible(true);
+        restartButton.setVisible(false); // Hide Restart button
+
+        // Khởi động lại bộ đếm thời gian
+        timerEvent.paused = false;
+    }
+
+    function update() {}
+</script>
+</body>
+</html>

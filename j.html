@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swap Grid with Colors</title>
+    <style>
+        .grid {
+            display: flex;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-size: 300px;
+            /* Kích thước sprite sheet */
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid">
+        <div class="cell" id="cell1"></div>
+        <div class="cell" id="cell2"></div>
+    </div>
+    <button id="swapButton">Hoán đổi ô</button>
+    <script>
+        // Dữ liệu ô
+        const cells = [
+            { key: 'sprite1', frame: 0, color: 'red' },
+            { key: 'sprite2', frame: 1, color: 'blue' }
+        ];
+        // Hàm cập nhật giao diện từ dữ liệu
+        function updateCells() {
+            cells.forEach((cell, index) => {
+                const element = document.getElementById(`cell${index + 1}`);
+                const offsetX = cell.frame * -100; // Dịch chuyển frame theo sprite sheet
+                element.style.backgroundPosition = `${offsetX}px 0`;
+                element.style.backgroundColor = cell.color; // Cập nhật màu
+                element.textContent = cell.key; // Hiển thị key text
+            });
+        }
+        // Hàm in thông tin ra console
+        function logCells(stage) {
+            console.log(`${stage} - Ô 1:`, cells[0]);
+            console.log(`${stage} - Ô 2:`, cells[1]);
+        }
+        // Hoán đổi dữ liệu giữa hai ô
+        function swapCells() {
+            [cells[0], cells[1]] = [cells[1], cells[0]];
+        }
+        // Gắn sự kiện cho nút
+        document.getElementById('swapButton').addEventListener('click', () => {
+            console.log(cells)
+            logCells('Trước hoán đổi');
+            swapCells();
+            updateCells();
+            logCells('Sau hoán đổi');
+            console.log(cells)
+        });
+        // Cập nhật giao diện lần đầu
+        updateCells();
+    </script>
+</body>
+
+</html>

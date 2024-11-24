@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phaser Tan Ra Từ Tâm Trong Phạm Vi</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phaser Tan Ra Từ Tâm Trong Phạm Vi</h1>
+
+    <div id="gameContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <script>
+        const config = {
+            type: Phaser.AUTO,
+            width: 800,
+            height: 600,
+            parent: 'gameContainer',
+            scene: {
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+        const game = new Phaser.Game(config);
+
+        let sprite;
+        let particleEmitter;
+
+        function preload() {
+            // Tải hình ảnh
+            this.load.image('myImage', 'https://phaser.io/content/tutorials/phaser3-tutorial/assets/sprites/phaser-dude.png');
+            this.load.image('particle', 'img/a.png');
+        }
+
+        function create() {
+            // Tạo sprite
+            sprite = this.add.sprite(400, 300, 'myImage');
+
+            // Thiết lập ParticleEmitter
+            particleEmitter = this.add.particles('particle').createEmitter({
+                speed: { min: 30, max: 80 }, // Tốc độ particle trong phạm vi nhỏ
+                scale: { start: 1, end: 0 },  // Phóng to rồi thu nhỏ
+                alpha: { start: 1, end: 0 },  // Particle từ rõ đến mờ dần
+                lifespan: 300, // Thời gian sống của mỗi particle
+                quantity: 5, // Số lượng particle phát tán mỗi lần
+                angle: { min: 0, max: 360 }, // Phát tán ra từ mọi hướng xung quanh
+                gravityY: 0,  // Không có lực hấp dẫn theo chiều dọc
+                maxVelocityX: 80, // Giới hạn tốc độ của particle theo chiều ngang
+                maxVelocityY: 80, // Giới hạn tốc độ của particle theo chiều dọc
+                on: false,  // Ban đầu không phát tán
+            });
+
+            // Khi người dùng click vào sprite, tạo hiệu ứng tan ra và sau đó destroy
+            sprite.setInteractive();
+            sprite.on('pointerdown', () => {
+                createExplosion(sprite.x, sprite.y);  // Tạo hiệu ứng nổ tại vị trí của sprite
+                sprite.destroy();  // Hủy sprite
+            });
+        }
+
+        function update() {
+            // Các logic cập nhật cho trò chơi
+        }
+
+        function createExplosion(x, y) {
+            // Kích hoạt hiệu ứng particle tại vị trí của sprite
+            particleEmitter.explode(30, x, y);  // Phát nổ 30 phần tử xung quanh vị trí (x, y)
+        }
+    </script>
+</body>
+</html>
